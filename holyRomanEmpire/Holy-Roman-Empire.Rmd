@@ -1,0 +1,150 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r}
+library("tidyverse")
+library("sf")
+library("leaflet")
+```
+
+
+## https://worldmap.harvard.edu/data/geonode:holyromanempire_551
+
+```{r}
+download.file("http://worldmap.harvard.edu/download/wfs/20109/zip?outputFormat=SHAPE-ZIP&service=WFS&request=GetFeature&format_options=charset%3AUTF-8&typename=geonode%3Aholyromanempire_551&version=1.0.0",
+              destfile = "data/harvard-worldmap_holy-roman-empire.zip")
+unzip(zipfile = "data/harvard-worldmap_holy-roman-empire.zip", exdir = "data/harvard-worldmap_holy-roman-empire")
+```
+
+This purports to be the Holy Roman Empire in 1034 CE and was obtained from https://worldmap.harvard.edu/data/geonode:holyromanempire_551
+
+```{r}
+harvard_worldmap_holyRomanEmpire <- read_sf("data/harvard-worldmap_holy-roman-empire")
+harvard_worldmap_holyRomanEmpire %>%
+  leaflet() %>%
+  addTiles() %>%
+  addPolygons()
+```
+
+
+https://worldmap.harvard.edu/data/geonode:holyromanempire_551
+
+## Ancient World Mapping Center
+
+The Ancient World Mapping Centre provides many different shapefiles, here are all the ones that look to me to be the Holy Roman Empire
+
+```{r}
+all_roman_shps <- c("Roman_Empire_Around_AD_75",
+                    "roman_empire_60_bc_provinces",
+                    "roman_empire_ad_117",
+                    "roman_empire_ad_117_extent",
+                    "roman_empire_ad_14_extent",
+                    "roman_empire_ad_14_provinces",
+                    "roman_empire_ad_200_extent",
+                    "roman_empire_ad_200_provinces",
+                    "roman_empire_ad_69_extent",
+                    "roman_empire_ad_69_provinces",
+                    "roman_empire_bc_60_extent"
+                    )
+get_shp_files <- function(layer.name) {
+  all_files <- paste0(layer.name,
+                      c(".dbf", ".prj", ".sbn", ".sbx", ".shp.xml", ".shx"))
+  
+  dir.create(file.path("data", layer.name))
+  
+  lapply(all_files,
+         function(x) {
+           download.file(
+             url = paste0(
+               "http://awmc.unc.edu/awmc/map_data/shapefiles/political_shading/",
+               x
+             ),
+             destfile = file.path("data", layer.name, x)
+           )
+         })
+  
+}
+invisible(lapply(all_roman_shps, function(x) get_shp_files(x)))
+```
+
+
+```{r}
+empire_map <- function(layer.name){
+  read_sf(file.path("data",layer.name)) %>%
+    leaflet() %>%
+    addTiles() %>%
+    addPolygons()
+}
+```
+
+
+roman_empire_60_bc_provinces
+
+```{r}
+empire_map("roman_empire_60_bc_provinces")
+```
+
+roman_empire_ad_117
+
+```{r}
+empire_map("roman_empire_ad_117")
+```
+
+roman_empire_ad_117_extent
+
+```{r}
+empire_map("roman_empire_ad_117_extent")
+```
+
+roman_empire_ad_14_extent
+
+```{r}
+empire_map("roman_empire_ad_14_extent")
+```
+
+roman_empire_ad_14_provinces
+
+```{r}
+empire_map("roman_empire_ad_14_provinces")
+```
+
+roman_empire_ad_200_extent
+
+```{r}
+empire_map("roman_empire_ad_200_extent")
+```
+
+roman_empire_ad_200_provinces
+
+```{r}
+empire_map("roman_empire_ad_200_provinces")
+```
+
+roman_empire_ad_69_extent
+
+```{r}
+empire_map("roman_empire_ad_69_extent")
+```
+
+roman_empire_ad_69_provinces
+
+```{r}
+empire_map("roman_empire_ad_69_provinces")
+```
+
+roman_empire_bc_60_extent
+
+```{r}
+empire_map("roman_empire_bc_60_extent")
+```
+
